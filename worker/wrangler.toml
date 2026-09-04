@@ -1,0 +1,11 @@
+# Config de referencia. No es obligatoria si desplegás pegando worker.js en el
+# panel de Cloudflare (Edit code → Deploy).
+name = "leen-studie"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# Las variables NO van acá. Se cargan en el panel:
+#   Settings → Variables and Secrets
+#     ANTHROPIC_API_KEY  → Secret
+#     ACCESS_CODE        → Text
+#     MODEL              → Text (opcional, por defecto claude-sonnet-5)

@@ -1,0 +1,160 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+  /* Paleta tomada del logo: azul marino + turquesa + acento naranjo */
+  --color-bg: #f4f7f8;
+  --color-surface: #ffffff;
+  --color-ink: #1b2f45;
+  --color-ink-soft: #5f7183;
+  --color-line: #e1e8ec;
+
+  --color-navy: #1c3f5f;
+  --color-navy-soft: #e5edf3;
+
+  --color-teal: #2f97a7;
+  --color-teal-soft: #e2f1f3;
+
+  --color-amber: #e08a2c;
+  --color-amber-soft: #fbeede;
+
+  --color-green: #3f8f6b;
+  --color-green-soft: #e6f1ec;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* KaTeX: que no se desborde en pantallas chicas */
+  .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.25rem 0;
+    text-align: center;
+  }
+  .katex-display > .katex {
+    white-space: normal;
+  }
+  .katex {
+    font-size: 1.05em;
+  }
+}
+
+@layer components {
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px rgb(42 36 51 / 0.04);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    transition: transform 0.06s ease, background 0.15s ease, opacity 0.15s ease;
+    cursor: pointer;
+    user-select: none;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: var(--color-navy);
+    color: #fff;
+  }
+  .btn-ghost {
+    background: var(--color-teal-soft);
+    color: var(--color-teal);
+  }
+  .btn-line {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    color: var(--color-ink);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Prosa dentro de una ficha: bloques cortos, mucho aire */
+  .prose-ficha {
+    line-height: 1.6;
+  }
+  .prose-ficha p {
+    margin: 0 0 0.7rem;
+  }
+  .prose-ficha strong {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .prose-ficha ul,
+  .prose-ficha ol {
+    margin: 0 0 0.7rem;
+    padding-left: 1.2rem;
+  }
+  .prose-ficha li {
+    margin: 0.2rem 0;
+  }
+  .prose-ficha code {
+    background: var(--color-teal-soft);
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.3rem;
+    font-size: 0.9em;
+  }
+}
+
+/* Ocultar scrollbars horizontales feos en móvil pero permitir scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-in {
+  animation: fade-in 0.25s ease both;
+}
