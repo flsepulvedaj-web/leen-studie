@@ -8,6 +8,7 @@ const K_URL = 'leen.apiUrl'
 const K_CODE = 'leen.accessCode'
 
 const ENV_URL = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '')
+const ENV_CODE = import.meta.env.VITE_ACCESS_CODE ?? ''
 
 export function getApiUrl(): string {
   try {
@@ -29,10 +30,12 @@ export function setApiUrl(url: string) {
 
 export function getAccessCode(): string {
   try {
-    return localStorage.getItem(K_CODE) ?? ''
+    const v = localStorage.getItem(K_CODE)
+    if (v) return v
   } catch {
-    return ''
+    /* localStorage no disponible */
   }
+  return ENV_CODE
 }
 
 export function setAccessCode(code: string) {
