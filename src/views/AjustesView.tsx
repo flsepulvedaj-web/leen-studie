@@ -16,6 +16,7 @@ import { desktop, esDesktop } from '../lib/desktop'
 import type { Ficha, Ramo } from '../lib/types'
 import Header from '../components/Header'
 import { useActualizacion } from '../components/ActualizacionBanner'
+import DescargaEscritorio from '../components/DescargaEscritorio'
 
 /** Versión instalada, actualizaciones y carpeta de datos (solo app de escritorio). */
 function SeccionEscritorio() {
@@ -194,6 +195,7 @@ export default function AjustesView() {
 
       <div className="flex flex-col gap-6 px-4 py-4">
         {esDesktop && <SeccionEscritorio />}
+        {!esDesktop && <DescargaEscritorio />}
         {!esDesktop && seccionServidor}
 
         {!esDesktop && (

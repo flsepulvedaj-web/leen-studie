@@ -5,6 +5,7 @@ import { estaConfigurada } from '../lib/settings'
 import { colorRamo } from '../lib/colores'
 import { Vacio } from '../components/ui'
 import type { Ficha } from '../lib/types'
+import DescargaEscritorio from '../components/DescargaEscritorio'
 
 export default function RamosView() {
   const ramos = useLiveQuery(
@@ -31,6 +32,10 @@ export default function RamosView() {
           <p className="text-xs text-[var(--color-ink-soft)]">Tus ramos</p>
         </div>
       </header>
+
+      <div className="mx-4 mt-2 empty:hidden">
+        <DescargaEscritorio compacto />
+      </div>
 
       {!estaConfigurada() && (
         <div className="mx-4 mt-2">
