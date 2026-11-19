@@ -6,9 +6,73 @@ import {
   setApiUrl,
   getAccessCode,
   setAccessCode,
+  getTranscriberUrl,
+  setTranscriberUrl,
+  marcarTranscriberUsado,
+  TRANSCRIBER_URL_POR_DEFECTO,
 } from '../lib/settings'
+import { salud } from '../lib/transcriber'
+import { desktop, esDesktop } from '../lib/desktop'
 import type { Ficha, Ramo } from '../lib/types'
 import Header from '../components/Header'
+import { useActualizacion } from '../components/ActualizacionBanner'
+
+/** Versión instalada, actualizaciones y carpeta de datos (solo app de escritorio). */
+function SeccionEscritorio() {
+  const estado = useActualizacion()
+  const [buscando, setBuscando] = useState(false)
+
+  const texto = (() => {
+    if (buscando || estado?.estado === 'buscando') return 'Buscando actualizaciones…'
+    switch (estado?.estado) {
+      case 'descargando':
+        return `Descargando la actualización… ${Math.round(estado.progreso * 100)}%`
+      case 'lista':
+        return `La versión ${estado.version} está lista para instalarse.`
+      case 'error':
+        return `No se pudo buscar: ${estado.mensaje}`
+      default:
+        return 'Tienes la última versión (o no se pudo comprobar sin internet).'
+    }
+  })()
+
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="font-display text-lg">LEEN STUDIE para escritorio</h2>
+      <p className="text-sm text-[var(--color-ink-soft)]">
+        Versión {desktop?.version}. La app se actualiza sola cuando hay
+        internet; no necesitas desinstalar nada. Tus fichas y tus clases se
+        conservan.
+      </p>
+      <p className="text-sm">{texto}</p>
+      <div className="flex gap-2">
+        {estado?.estado === 'lista' ? (
+          <button
+            className="btn btn-primary flex-1"
+            onClick={() => desktop?.instalarActualizacion()}
+          >
+            Actualizar ahora
+          </button>
+        ) : (
+          <button
+            className="btn btn-line flex-1"
+            disabled={buscando}
+            onClick={async () => {
+              setBuscando(true)
+              await desktop?.buscarActualizacion()
+              setBuscando(false)
+            }}
+          >
+            Buscar actualizaciones
+          </button>
+        )}
+        <button className="btn btn-line flex-1" onClick={() => desktop?.abrirCarpetaDatos()}>
+          Abrir carpeta de clases
+        </button>
+      </div>
+    </section>
+  )
+}
 
 export default function AjustesView() {
   const total = useLiveQuery(() => db.fichas.count(), [], undefined)
@@ -22,6 +86,30 @@ export default function AjustesView() {
     setAccessCode(code)
     setGuardado(true)
     setTimeout(() => setGuardado(false), 1800)
+  }
+
+  const [trUrl, setTrUrl] = useState(getTranscriberUrl())
+  const [trEstado, setTrEstado] = useState<string | null>(null)
+
+  async function probarTranscriber() {
+    setTranscriberUrl(trUrl)
+    setTrEstado('Probando…')
+    const s = await salud()
+    if (!s) {
+      setTrEstado(
+        'No responde. Abre iniciar.bat en la carpeta transcriber y deja esa ventana abierta.',
+      )
+      return
+    }
+    marcarTranscriberUsado()
+    const faltan: string[] = []
+    if (!s.ffmpeg) faltan.push('ffmpeg')
+    for (const [m, ok] of Object.entries(s.modelos)) if (!ok) faltan.push(`modelo ${m}`)
+    setTrEstado(
+      faltan.length
+        ? `Conectado (v${s.version}). Falta: ${faltan.join(', ')}.`
+        : `Conectado (v${s.version}). Todo listo para transcribir.`,
+    )
   }
 
   async function exportar() {
@@ -65,43 +153,86 @@ export default function AjustesView() {
     }
   }
 
+  const seccionServidor = (
+    <section className="flex flex-col gap-3">
+      <h2 className="font-display text-lg">Servidor</h2>
+      <p className="text-sm text-[var(--color-ink-soft)]">
+        La app usa un servidor propio para generar las fichas con IA. Pega
+        aquí la dirección que te pasó quien lo instaló.
+      </p>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-medium">Dirección del servidor</span>
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://…workers.dev"
+          autoCapitalize="off"
+          autoCorrect="off"
+          className="card px-3 py-2.5 text-[16px] outline-none focus:border-[var(--color-teal)]"
+        />
+      </label>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-medium">Código de acceso</span>
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="El código que te dieron"
+          autoCapitalize="off"
+          autoCorrect="off"
+          className="card px-3 py-2.5 text-[16px] outline-none focus:border-[var(--color-teal)]"
+        />
+      </label>
+      <button className="btn btn-primary" onClick={guardar}>
+        {guardado ? 'Guardado ✓' : 'Guardar'}
+      </button>
+    </section>
+  )
+
   return (
     <div className="pb-24">
       <Header titulo="Ajustes" />
 
       <div className="flex flex-col gap-6 px-4 py-4">
+        {esDesktop && <SeccionEscritorio />}
+        {!esDesktop && seccionServidor}
+
+        {!esDesktop && (
         <section className="flex flex-col gap-3">
-          <h2 className="font-display text-lg">Servidor</h2>
+          <h2 className="font-display text-lg">Transcripción de clases</h2>
           <p className="text-sm text-[var(--color-ink-soft)]">
-            La app usa un servidor propio para generar las fichas con IA. Pega
-            aquí la dirección que te pasó quien lo instaló.
+            Corre en tu computador (Python + ffmpeg + Whisper), sin internet ni
+            costo. Normalmente no necesitas cambiar esta dirección.
           </p>
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Dirección del servidor</span>
+            <span className="text-sm font-medium">Dirección del servicio local</span>
             <input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://…workers.dev"
+              value={trUrl}
+              onChange={(e) => setTrUrl(e.target.value)}
               autoCapitalize="off"
               autoCorrect="off"
               className="card px-3 py-2.5 text-[16px] outline-none focus:border-[var(--color-teal)]"
             />
           </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Código de acceso</span>
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="El código que te dieron"
-              autoCapitalize="off"
-              autoCorrect="off"
-              className="card px-3 py-2.5 text-[16px] outline-none focus:border-[var(--color-teal)]"
-            />
-          </label>
-          <button className="btn btn-primary" onClick={guardar}>
-            {guardado ? 'Guardado ✓' : 'Guardar'}
-          </button>
+          <div className="flex gap-2">
+            <button className="btn btn-line flex-1" onClick={probarTranscriber}>
+              Probar conexión
+            </button>
+            <button
+              className="btn btn-line flex-1"
+              onClick={() => {
+                setTrUrl(TRANSCRIBER_URL_POR_DEFECTO)
+                setTranscriberUrl(TRANSCRIBER_URL_POR_DEFECTO)
+                setTrEstado(null)
+              }}
+            >
+              Restablecer
+            </button>
+          </div>
+          {trEstado && (
+            <p className="text-sm text-[var(--color-ink-soft)]">{trEstado}</p>
+          )}
         </section>
+        )}
 
         <section className="flex flex-col gap-3">
           <h2 className="font-display text-lg">Tus datos</h2>
@@ -156,6 +287,15 @@ export default function AjustesView() {
             internet. Todo lo que ya guardaste se lee sin conexión.
           </p>
         </section>
+
+        {esDesktop && (
+          <details className="text-sm">
+            <summary className="cursor-pointer text-[var(--color-ink-soft)]">
+              Opciones avanzadas
+            </summary>
+            <div className="mt-3">{seccionServidor}</div>
+          </details>
+        )}
       </div>
     </div>
   )

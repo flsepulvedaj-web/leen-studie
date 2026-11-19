@@ -1,0 +1,23 @@
+{
+  "name": "leen-studie-desktop",
+  "productName": "LEEN STUDIE",
+  "version": "1.0.0",
+  "description": "LEEN STUDIE para escritorio: fichas de estudio y transcripción de clases, todo en un instalador.",
+  "author": "LEEN STUDIE",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "preparar": "node scripts/preparar-recursos.mjs",
+    "ui": "npm --prefix .. run build:desktop",
+    "empaquetar": "electron-builder --dir",
+    "instalador": "electron-builder --win nsis",
+    "dist": "npm run ui && npm run preparar && npm run instalador"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
+  },
+  "devDependencies": {
+    "electron": "^45.3.4",
+    "electron-builder": "^26.18.0"
+  }
+}

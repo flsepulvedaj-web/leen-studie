@@ -7,6 +7,7 @@ import { estaConfigurada } from '../lib/settings'
 import { colorRamo } from '../lib/colores'
 import Header from '../components/Header'
 import FichaCard from '../components/FichaCard'
+import ClasesDelRamo from '../components/ClasesDelRamo'
 import { Spinner, AvisoError } from '../components/ui'
 import type { Ficha } from '../lib/types'
 
@@ -156,6 +157,8 @@ export default function RamoView() {
           Contexto: {ramo.contexto}
         </p>
       )}
+
+      <ClasesDelRamo ramoId={ramo.id} />
 
       <div className="mt-5 flex flex-col gap-3 px-4">
         {ordenadas.length === 0 ? (

@@ -8,3 +8,17 @@ dist-ssr
 !.env.example
 .vscode/*
 !.vscode/extensions.json
+
+# App de escritorio (Electron): todo lo que se genera al empaquetar
+dist-desktop/
+desktop/node_modules/
+desktop/icono.png
+desktop/build/icon.png
+
+# Servicio de transcripción (Python)
+transcriber/.venv/
+transcriber/data/
+transcriber/tools/
+__pycache__/
+*.pyc
+.pytest_cache/

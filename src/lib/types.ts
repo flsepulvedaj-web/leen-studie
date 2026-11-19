@@ -61,6 +61,76 @@ export interface Correccion {
   problemaSimilar: string | null
 }
 
+// --- Transcripción de clases (servicio local) ---------------------------------
+
+export type EstadoTrabajo =
+  | 'en_cola'
+  | 'extrayendo'
+  | 'transcribiendo'
+  | 'listo'
+  | 'error'
+  | 'cancelado'
+
+export type ModeloWhisper = 'small' | 'medium'
+
+export interface Transcripcion {
+  id: string
+  titulo: string
+  ramoId: string
+  ramoNombre: string
+  /** AAAA-MM-DD */
+  fechaClase: string
+  archivoOriginal: string
+  esVideo: boolean
+  modelo: ModeloWhisper
+  /** Segundos. Null hasta que el servicio lee el archivo. */
+  duracion: number | null
+  estado: EstadoTrabajo
+  /** 0 a 1 */
+  progreso: number
+  /** Segundos restantes estimados; null = todavía calculando. */
+  etaSeg: number | null
+  error: string | null
+  creada: number
+  terminada: number | null
+}
+
+export interface Segmento {
+  idx: number
+  inicio: number
+  fin: number
+  texto: string
+}
+
+export interface HitBusqueda {
+  transcripcionId: string
+  titulo: string
+  ramoId: string
+  ramoNombre: string
+  fechaClase: string
+  /** Segundos donde aparece la coincidencia. */
+  inicio: number
+  /** Texto con la coincidencia entre \u0001 y \u0002. */
+  texto: string
+}
+
+export interface DescargaModelo {
+  estado: 'listo' | 'descargando' | 'falta' | 'error'
+  /** 0 a 1 */
+  progreso: number
+  error: string | null
+}
+
+export interface SaludServicio {
+  ok: true
+  version: string
+  ffmpeg: boolean
+  modelos: Record<ModeloWhisper, boolean>
+  descargas: Record<ModeloWhisper, DescargaModelo>
+  busquedaRapida: boolean
+  modoPrueba: boolean
+}
+
 export interface PreguntaRepaso {
   fichaId: string
   ramo: string

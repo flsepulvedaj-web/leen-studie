@@ -16,6 +16,14 @@ se torció el razonamiento.
 - **Cloudflare Worker** (`worker/`) — genera el contenido con la API de Claude
   (`claude-sonnet-5`), guardando la API key fuera del teléfono.
 
+## Transcribir clases (módulo local)
+
+La pestaña **Clases** convierte grabaciones de clases (audio o video, incluso
+Zoom de 1–2 horas) en texto con marcas de tiempo, buscable por ramo y
+exportable a `.txt`, `.srt` y `.docx`. Funciona **100 % en el computador y sin
+costo**, con un servicio Python aparte (`transcriber/`: ffmpeg + faster-whisper).
+Instalación y uso: [`transcriber/README.md`](./transcriber/README.md).
+
 ## Correr en local
 
 ```bash
